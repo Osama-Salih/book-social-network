@@ -12,14 +12,15 @@ import com.osama.book.user.TokenRepository;
 import com.osama.book.user.User;
 import com.osama.book.user.UserRepository;
 import jakarta.mail.MessagingException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -105,5 +106,23 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .token(token).build();
+    }
+
+
+//    @Transactional
+    public void activateAccount(final String token) throws MessagingException {
+        Token savedToken = this.tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+        if (LocalDateTime.now().isAfter(savedToken.getExpiredAt())) {
+            sendValidationEmail(savedToken.getUser());
+            throw new RuntimeException("Activation token has expired. A new Token has been sent to your email");
+        }
+        var user = this.userRepository.findById(savedToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        user.setEnabled(true);
+        this.userRepository.save(user);
+        savedToken.setValidatedAt(LocalDateTime.now());
+        this.tokenRepository.save(savedToken);
     }
 }
