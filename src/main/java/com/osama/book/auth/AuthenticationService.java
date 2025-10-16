@@ -1,12 +1,16 @@
 package com.osama.book.auth;
 
 import com.osama.book.auth.request.RegisterRequest;
+import com.osama.book.email.EmailService;
+import com.osama.book.email.EmailTemplateName;
 import com.osama.book.role.RoleRepository;
 import com.osama.book.user.Token;
 import com.osama.book.user.TokenRepository;
 import com.osama.book.user.User;
 import com.osama.book.user.UserRepository;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +26,11 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenRepository tokenRepository;
+    private final EmailService emailService;
+    @Value("${application.security.mailing.frontend.activation_url}")
+    private String activationUrl;
 
-    public void register(final RegisterRequest request) {
+    public void register(final RegisterRequest request) throws MessagingException {
         var userRole = this.roleRepository.findByName("USER")
                 .orElseThrow(() -> new IllegalStateException("Role USER was not initialized"));
 
@@ -40,8 +47,15 @@ public class AuthenticationService {
         sendValidationEmail(user);
     }
 
-    private void sendValidationEmail(final User user) {
+    private void sendValidationEmail(final User user) throws MessagingException {
         final String newToken = generateAndSaveActivationToken(user);
+        this.emailService.sendEmail(
+                user.getEmail(),
+                user.fullName(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+                activationUrl,
+                newToken,
+                "Activate account");
     }
 
     private String generateAndSaveActivationToken(final User user) {

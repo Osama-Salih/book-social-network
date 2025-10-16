@@ -2,6 +2,7 @@ package com.osama.book.auth;
 
 import com.osama.book.auth.request.RegisterRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class AuthenticationController {
     public ResponseEntity<Void> register(
             @RequestBody
             @Valid
-            final RegisterRequest request) {
+            final RegisterRequest request) throws MessagingException {
         this.authService.register(request);
         return ResponseEntity.accepted().build();
     }
