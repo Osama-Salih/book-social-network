@@ -1,5 +1,7 @@
 package com.osama.book.auth;
 
+import com.osama.book.auth.request.AuthenticationRequest;
+import com.osama.book.auth.response.AuthenticationResponse;
 import com.osama.book.auth.request.RegisterRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
@@ -25,5 +27,13 @@ public class AuthenticationController {
             final RegisterRequest request) throws MessagingException {
         this.authService.register(request);
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthenticationResponse> login(
+            @RequestBody
+            @Valid
+            final AuthenticationRequest request) {
+        return ResponseEntity.ok(this.authService.login(request));
     }
 }
