@@ -1,5 +1,7 @@
 package com.osama.book.user;
 
+import com.osama.book.book.Book;
+import com.osama.book.history.TransactionHistory;
 import com.osama.book.role.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,6 +52,12 @@ public class User implements UserDetails, Principal {
     @LastModifiedDate
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
+
+    @OneToMany(mappedBy = "owner")
+    private List<Book> books;
+
+    @OneToMany(mappedBy = "user")
+    private List<TransactionHistory> histories;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
