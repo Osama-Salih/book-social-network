@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @Entity
-public class FeedBack extends BaseEntity {
+public class Feedback extends BaseEntity {
 
     private double note;
     private String comment;

@@ -1,7 +1,7 @@
 package com.osama.book.book;
 
 import com.osama.book.common.BaseEntity;
-import com.osama.book.feedback.FeedBack;
+import com.osama.book.feedback.Feedback;
 import com.osama.book.history.TransactionHistory;
 import com.osama.book.user.User;
 import jakarta.persistence.*;
@@ -34,7 +34,7 @@ public class Book extends BaseEntity {
     private User owner;
 
     @OneToMany(mappedBy = "book")
-    private List<FeedBack> feedBacks;
+    private List<Feedback> feedBacks;
 
     @OneToMany(mappedBy = "book")
     private List<TransactionHistory> histories;
@@ -45,7 +45,7 @@ public class Book extends BaseEntity {
             return 0.0;
         }
         var rate = this.feedBacks.stream()
-                .mapToDouble(FeedBack::getNote)
+                .mapToDouble(Feedback::getNote)
                 .average()
                 .orElse(0.0);
         double roundedRate = Math.round(rate * 10.0) / 10.0;
